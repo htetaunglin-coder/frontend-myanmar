@@ -1,13 +1,122 @@
 ---
-title: မဂ်လာပါ
-description: ပထမဆုံးအကြောင်းအရာ
+title: React Polymorphic Component
+description: creating a strongly type polymorphic component with typescript and react.
 ---
 
-Welcome to the docs! You can start writing documents in `/content/docs`.
+import Image from "next/image";
 
-## What is Next?
+## Intro
 
-<Cards>
-  <Card title="Learn more about Next.js" href="https://nextjs.org/docs" />
-  <Card title="Learn more about Fumadocs" href="https://fumadocs.vercel.app" />
-</Cards>
+### Polymorphic Component ဆိုတာဘာလဲ?
+
+Polymorphic component ဆိုတာက user အနေနဲ့ ပေးထားတဲ့ prop ရဲ့ value အပေါ်မူတည်ပြီး မတူညီတဲ့ HTML element အမျိုးမျိုးကို render လုပ်ပေးတဲ့ component တစ်ခုကို ခေါ်ပါတယ်။
+
+ဥပမာ - အခြေအနေတစ်ခုကို တွေးကြည့်ရအောင်
+ကျွန်တော်တို့ Button component တစ်ခု create ထားတယ်။ သူ့မှာ default styling တွေလည်းပါပြီးသား။ ပြီးတော့ကျွန်တော်တို့မှာ Button လိုပဲ လုပ်ဆောင်နိုင်တဲ့ `<a>` tag element တစ်ခုလိုအပ်လာတယ်လို့ဆိုကြပါစို့။
+
+ပုံမှန်ဆို ကျွန်တော်တို့က button component ထဲက style တွေ classname တွေ copy ကူးပြီးတော့ button နဲ့တူတဲ့ `<a>` tag element တစ်ခုဖြစ်အောင် လုပ်လေ့ကြပါတယ်
+
+ဒါဆို Button component မှာ style တွေ classname တွေ တင်မဟုတ်ဘဲ၊ icon တွေပါမယ် ပြီးတော့ loading ဖြစ်ရင် ထပ်ပြီးပါလာမယ့် styles တွေ စသည်ဖြင့် feature တွေထပ်ပြီးပါလာသည့်အခါ ယခင်က ကျွန်တော်တို့ပြောသလို လုပ်မယ် ဆို code တွေကလည်း duplicate ဖြစ်နေမယ် ဒါ့အပြင် button component ကို တစ်ခုခု edit လုပ်တဲ့အခါ `<a>` tag element ကိုလည်း ပြန်ပြီး update လုပ်ပေးရပါမယ်။
+
+ဒီလိုမျိုးလုပ်မယ့်အစား ကျွန်တော်တို့အနေနဲ့ Button လိုပဲ style တစ်ပုံစံထဲ ရှိပြီး Button လိုပဲ လုပ်ဆောင်နိုင်မယ့် component တစ်ခု create လုပ်မယ်။ ဒါပေမယ့် render လုပ်မယ့် element က `<button>` မဟုတ်ဘဲ `<a>` tagဖြစ်မယ်။ `<a>` tag ဖြစ်တဲ့အတွက်ကြောင့် attributes တွေကလည်း သူနှင့်သက်ဆိုင်တဲ့ အရာတွေဘဲထည့်လို့ရမယ်။
+ဥပမာ: `href="https://example.com`, `target="_blank"`
+
+ဒီလိုမျိုး element type ကို dynamic ပြောင်းလဲနိုင်တဲ့ component မျိုး create လုပ်တဲ့အခါမှာ Polymorphic Component ကို အသုံးပြုပါတယ်
+
+Ref passable componet React 18 and below:
+
+```tsx
+import React from "react";
+
+const Button = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<"button">>((props, ref) => {
+  return <button ref={ref} {...props} />;
+});
+```
+
+Passing the ref from the parent component:
+
+```tsx
+const ParentComponent = () => {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  return <Button ref={buttonRef}>Button With Ref</Button>;
+};
+```
+
+forwardRef ကိုအသုံးပြုရတဲ့အခါမှာ forwardRefက အစကတည်းက genric types ကြောင့် complex ဖြစ်ပြီးသားဖြစ်နေတဲ့အတွက် type safety ရှိတဲ့ polymorphic component create ဖို့အတွက် types တွေ define လုပ်ရတဲ့အခါမှာ တစ်ကယ်ကိုမှ ထိုင်ငိုချင်စရာကောင်းလောက်အောင်ရှုပ်ထွေးလွန်းလှပါတယ်
+
+ယခု **React 19** ထွက်လာတဲ့ အချိန်မှာ တော့ ကျွန်တော်တို့ forwardRef ကို သုံးစရာမလိုတော့ဘဲ ပုံမှန် prop အနေနဲ့ pass ပေးနိုင်ပါတယ်
+
+```tsx
+const Button = (props: React.ComponentPropsWithRef<"button">) => {
+  return <button {...props} />;
+};
+```
+
+Passing the ref from the parent component:
+
+```tsx
+const ParentComponent = () => {
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
+
+  return <Button ref={buttonRef}>Button With Ref</Button>;
+};
+```
+
+forwardRef သုံးစရာမလိုဘူးဆိုတော့ types တွေက အရင် လောက် complex မဖြစ်တဲ့အပြင် polymorphic component implement လုပ်ရတာအရင်ကထက် ပိုပြီးလွယ်ကူလာပါတယ်
+
+---
+
+## Polymorphic Component In action:
+
+[Material UI](https://mui.com), [Mantine UI](https://ui.mantine.dev/), [Chakra UI](https://chakra-ui.com/) သုံးဖူးတဲ့သူတွေဆို ဒီ concept နဲ့ပိုပြီးနီးစပ်မှာပါ
+
+**Mantine UI ရဲ့ `component` prop**
+
+<Image src="/mantine-polymorphic.png" alt="material-polymorphic" height={470} width={1125} />
+
+**Material UI ရဲ့ `component` prop**
+
+<Image src="/mui-polymorphic.png" alt="material-polymorphic" height={699} width={1674} />
+
+**Chakra UI ရဲ့ `as` prop**
+
+<Image src="/chakra-polymorphic.png" alt="material-polymorphic" height={470} width={1395} />
+
+လက်တွေ့ use case တွေသိပြီးပြီဆိုတော့ ကျွန်တော်တို့ implementation ဘက်သွားလိုက်ရအောင် 👉
+
+---
+
+## Creating A Basic Polymorphic Component
+
+အများစုထင်တာနဲ့တော့ လွဲကောင်းလွဲနေလိမ့်မယ် basic polymorphic component create ရတာ တကယ်ကို မှ လွယ်ကူပြီးရိုးရှင်းလှပါတယ်
+
+```tsx title="basic-polymorphic-component.tsx"
+const MyComponent = ({ as, children }) => {
+  const Component = as || "span";
+
+  return <Component>{children}</Component>;
+};
+```
+
+ဒီမှာ သတိထားရမှာ က `as` prop ကို render လုပ်တဲ့အချိန်မှာ ဒီလိုမျိုးတစ်ခါတည်း render မလုပ်ဖို့သတိထားရပါမယ်
+
+```tsx title="basic-polymorphic-component.tsx"
+const MyComponent = ({ as, children }) => {
+  // wrong render below 👇
+  return <as>{children}</as>;
+};
+```
+
+အကြောင်းအရင်းက User create ထားတဲ့ componentတွေဟာ capitalize လုပ်ထားမှသာ React အနေနဲ့ ဒါဟာ component တစ်ခုဖြစ်ကြောင်း detect လုပ်နိုင်တာကြောင့်ဖြစ်ပါတယ် ပိုမိုလေ့လာချင်တယ်ဆိုရင်တော့ ဒီ [link](https://legacy.reactjs.org/docs/jsx-in-depth.html#choosing-the-type-at-runtime) ကို သွားပြီးကြည့်နိုင်ပါတယ်
+
+ဒါဆိုရင်တော့ ကျွန်တော်တို့ create ထားတဲ့ component ကို သုံးလို့ရပါပြီ။
+
+```tsx
+<MyComponent as="button">Hello Polymorphic!<MyComponent>
+<MyComponent as="div">Hello Polymorphic!</MyComponent>
+<MyComponent as="span">Hello Polymorphic!</MyComponent>
+<MyComponent as="em">Hello Polymorphic!</MyComponent>
+```
+
+Browser မှာက တော့ ဒီ output အနေနဲ့ထွက်လာပါလိမ့်မယ်
