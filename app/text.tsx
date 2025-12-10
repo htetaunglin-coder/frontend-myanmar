@@ -1,7 +1,14 @@
 import Link from "next/link";
 import React, { useRef } from "react";
 
-type Rainbow = "red" | "orange" | "yellow" | "green" | "blue" | "indigo" | "violet";
+type Rainbow =
+  | "red"
+  | "orange"
+  | "yellow"
+  | "green"
+  | "blue"
+  | "indigo"
+  | "violet";
 
 // This extends the React.ElementType to include an `as` prop
 // meaning as props type can be "h1" | "div" | "span" | ReactElement, etc.. literally anything that react element type can be
@@ -18,18 +25,26 @@ type AsProp<C extends React.ElementType> = {
 // example: if C is "h1" and P/props is {color: "red", as: "h1"} we would remove the "color and as props" from the h1 element type and replace it with the appropriate props
 type PropsToOmit<C extends React.ElementType, P> = keyof (AsProp<C> & P);
 
-type PolymorphicComponentProp<C extends React.ElementType, Props = {}> = React.PropsWithChildren<Props & AsProp<C>> &
+type PolymorphicComponentProp<
+  C extends React.ElementType,
+  Props = {}
+> = React.PropsWithChildren<Props & AsProp<C>> &
   Omit<React.ComponentPropsWithRef<C>, PropsToOmit<C, Props>>;
 
 /**
  * This is the updated component props using PolymorphicComponentPropWithRef
  */
-type TextProps<C extends React.ElementType> = PolymorphicComponentProp<C, { color?: Rainbow | "black" }>;
+type TextProps<C extends React.ElementType> = PolymorphicComponentProp<
+  C,
+  { color?: Rainbow | "black" }
+>;
 
 /**
  * This is the type used in the type annotation for the component
  */
-type TextComponent = <C extends React.ElementType = "span">(props: TextProps<C>) => React.ReactElement | null;
+type TextComponent = <C extends React.ElementType = "span">(
+  props: TextProps<C>
+) => React.ReactElement | null;
 
 export const Text: TextComponent = <C extends React.ElementType = "span">({
   as,
@@ -49,11 +64,7 @@ export const Text: TextComponent = <C extends React.ElementType = "span">({
 };
 
 export const Test = () => {
-  return (
-    <Text as={Link} href={"/hello"}>
-      HELLO?s
-    </Text>
-  );
+  return <Text>HELLO?s</Text>;
 };
 
 const Button = (props: React.ComponentPropsWithRef<"button">) => {
@@ -83,8 +94,7 @@ const Button = (props: React.ComponentPropsWithRef<"button">) => {
 // Browser မှာက တော့ ဒီ output အနေနဲ့ထွက်လာပါလိမ့်မယ်
 // Pic...
 // So, What's next?
-// နောက်ထပ်ဘာရှိအုံးမလဲဆို အခု component ဟာ react only အသုံးပြုပြီး create ထားတာဖြစ်ပြီး ကိုယ်တစ်ယောက်တည်းအတွက် ဘဲသုံးဖို့ဆို ဒီလောက်နဲ့လုံလောက်ပါတယ်
-// ကျွန်တော်တို့က Type Safety ရှိပြီး reliable ဖြစ်တဲ့ component ကိုလိုချင်တာဆိုတော့ ဆက်သွားလိုက်ရအောင်
+
 // > အိုးကောင်းရချင်လျှင် နာနာရိုက် 🗣
 // ဒီ Basic Implementation နဲ့ပတ်သပ်ပြီးတော့ ပြသနာလေးတွေရှိတယ်
 // ပထမတစ်ခုက `as` prop က ကိုယ်ထည့်ချင်တဲ့ဟာထည့်လို့ရနေတယ်
